@@ -1306,7 +1306,6 @@ const shouldBeLegacyPrefixed = [
   "LenientSetter",
   "LenientThis",
   "TreatNonObjectAsNull",
-  "Unforgeable",
 ];
 
 const renamedLegacies = new Map([
