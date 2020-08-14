@@ -1,8 +1,6 @@
 MYPY = False
 if MYPY:
     # MYPY is set to True when run under Mypy.
-    from typing import Any
-    from typing import Dict
     from typing import Optional
     from typing import Text
 
