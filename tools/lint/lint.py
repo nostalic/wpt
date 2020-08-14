@@ -932,7 +932,7 @@ def create_parser():
                         "using fnmatch, except that path separators are normalized.")
     parser.add_argument("--all", action="store_true", help="If no paths are passed, try to lint the whole "
                         "working directory, not just files that changed")
-    parser.add_argument("--github-checks-text-file", dest="github_checks_text_file",
+    parser.add_argument("--github-checks-text-file", type=ensure_text,
                         help="Path to GitHub checks output file for Taskcluster runs")
     return parser
 
