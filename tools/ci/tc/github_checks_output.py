@@ -20,7 +20,7 @@ class GitHubChecksOutputter(object):
         self.path = path
 
     def output(self, line):
-        # type: (Any) -> None
+        # type: (Text) -> None
         with open(self.path, 'a') as f:
             f.write(line)
             f.write('\n')
