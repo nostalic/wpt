@@ -27,14 +27,14 @@ class GitHubChecksOutputter(object):
 
 
 __outputter = None
-def get_gh_checks_outputter(kwargs):
-    # type: (Dict[Text, Text]) -> Optional[GitHubChecksOutputter]
+def get_gh_checks_outputter(filepath):
+    # type: (Optional[Text]) -> Optional[GitHubChecksOutputter]
     """Return the outputter for GitHub Checks output, if enabled.
 
-    :param kwargs: The arguments passed to the program (to look for the
-                   github_checks_text_file field)
+    :param filepath: The filepath to write GitHub Check output information to,
+                     or None if not enabled.
     """
     global __outputter
-    if kwargs['github_checks_text_file'] and __outputter is None:
-        __outputter = GitHubChecksOutputter(kwargs['github_checks_text_file'])
+    if filepath and __outputter is None:
+        __outputter = GitHubChecksOutputter(filepath)
     return __outputter

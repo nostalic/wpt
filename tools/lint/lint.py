@@ -959,7 +959,7 @@ def main(**kwargs_str):
 
     ignore_glob = kwargs.get("ignore_glob", [])
 
-    github_checks_outputter = get_gh_checks_outputter(kwargs)
+    github_checks_outputter = get_gh_checks_outputter(kwargs["github_checks_text_file"])
 
     return lint(repo_root, paths, output_format, ignore_glob, github_checks_outputter)
 
