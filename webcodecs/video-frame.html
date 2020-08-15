@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<title>Test the VideoFrame API.</title>
+<body></body>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script>
+function makeImageBitmap(width, height) {
+  let canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  let ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'rgba(50, 100, 150, 255)';
+  ctx.fillRect(0, 0, width, height);
+
+  return createImageBitmap(canvas);
+}
+
+async_test(async function(t) {
+  let image = await makeImageBitmap(32, 16);
+
+  t.step(() => {
+    let frame = new VideoFrame(image, {timestamp: 10});
+
+    assert_class_string(frame, "VideoFrame", "new VideoFrame()");
+    assert_equals(frame.timestamp, 10, "timestamp");
+    assert_equals(frame.duration, null, "duration");
+    assert_equals(frame.cropWidth, 32, "cropWidth");
+    assert_equals(frame.cropHeight, 16, "cropHeight");
+    assert_equals(frame.cropWidth, 32, "displayWidth");
+    assert_equals(frame.cropHeight, 16, "displayHeight");
+
+    frame.destroy();
+  });
+
+  t.done();
+}, 'Test we can construct a VideoFrame.');
+
+async_test(async function(t) {
+  let image = await makeImageBitmap(1, 1);
+
+  t.step(() => {
+    let frame = new VideoFrame(image, {timestamp: 10});
+
+    assert_equals(frame.cropWidth, 1, "cropWidth");
+    assert_equals(frame.cropHeight, 1, "cropHeight");
+    assert_equals(frame.cropWidth, 1, "displayWidth");
+    assert_equals(frame.cropHeight, 1, "displayHeight");
+
+    frame.destroy();
+  });
+
+  t.done();
+}, 'Test we can construct an odd-sized VideoFrame.');
+
+async_test(async function(t) {
+  let image = await makeImageBitmap(32, 16);
+
+  t.step(() => {
+    let frame = new VideoFrame(image, {timestamp: 0});
+
+    // TODO(sandersd): This would be more clear as RGBA, but conversion has
+    // not be specified (or implemented) yet.
+    if (frame.format !== "I420") {
+      return;
+    }
+
+    assert_equals(frame.planes.length, 3, "number of planes");
+
+    // Read Y plane.
+    let yLength = frame.planes[0].length;
+    assert_greater_than_equal(yLength, 32 * 16, "Y plane length");
+    let buffer = new ArrayBuffer(yLength);
+    let view = new Uint8Array(buffer);
+    frame.planes[0].readInto(view);
+
+    // Validate the data.
+    // TODO(sandersd): This probably needs to be fuzzy unless we can make
+    // guarantees about the color space.
+    assert_equals(view[0], 94, "Y value at (0, 0)");
+
+    frame.destroy();
+  });
+
+  t.done();
+}, 'Test we can read planar data from a VideoFrame.');
+
+async_test(async function(t) {
+  let image = await makeImageBitmap(32, 16);
+
+  t.step(() => {
+    let frame = new VideoFrame(image, {timestamp: 0});
+
+    // TODO(sandersd): This would be more clear as RGBA, but conversion has
+    // not be specified (or implemented) yet.
+    if (frame.format !== "I420") {
+      return;
+    }
+
+    assert_equals(frame.planes.length, 3, "number of planes");
+
+    // Attempt to read Y plane, but destroy the frame first.
+    let yPlane = frame.planes[0];
+    let yLength = yPlane.length;
+    let buffer = new ArrayBuffer(yLength);
+    let view = new Uint8Array(buffer);
+
+    frame.destroy();
+    assert_throws_dom("InvalidStateError", () => yPlane.readInto(view));
+  });
+
+  t.done();
+}, 'Test we cannot read planar data from a destroyed VideoFrame.');
+</script>
+</html>
